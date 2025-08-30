@@ -2,6 +2,9 @@ server:
   port: 8080
 
 spring:
+  main:
+    allow-circular-references: true
+
   application:
     name: expense-tracker
 
@@ -23,9 +26,9 @@ spring:
         format_sql: true   # pretty print SQL
 
   # Mongo support (only if you switch to Mongo)
-  data:
-    mongodb:
-      uri: mongodb://localhost:27017/expense-tracker
+#  data:
+#    mongodb:
+#      uri: mongodb://localhost:27017/expense-tracker
 
 # Logging
 logging:
@@ -39,3 +42,8 @@ logging:
 app:
   db:
     type: ${DB_TYPE:postgres}   # default postgres, can override with env
+  jwt:
+    secret: chinmay-and-batman-never-seen-in-room-together #do not keep secret here, i need to change it
+    access-token-expiration: 900000      # 15 min in ms
+    refresh-token-expiration: 604800000  # 7 days in ms
+
