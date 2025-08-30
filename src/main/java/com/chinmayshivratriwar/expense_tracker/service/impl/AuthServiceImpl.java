@@ -10,6 +10,8 @@ import com.chinmayshivratriwar.expense_tracker.repository.SessionRepository;
 import com.chinmayshivratriwar.expense_tracker.security.JwtUtil;
 import com.chinmayshivratriwar.expense_tracker.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
@@ -69,7 +72,17 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void logout(String refreshToken) {
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new AuthException("Refresh token required for logout");
+        }
 
+        // Delete or mark the session invalid
+        sessionRepository.findByRefreshToken(refreshToken)
+                .ifPresentOrElse(
+                        sessionRepository::delete,
+                        () -> { throw new AuthException("Invalid or already logged-out session"); }
+                );
+        log.info("Logout Successfull");
     }
 
     @Override
