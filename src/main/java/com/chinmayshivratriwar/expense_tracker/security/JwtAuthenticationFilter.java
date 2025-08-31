@@ -1,5 +1,6 @@
 package com.chinmayshivratriwar.expense_tracker.security;
 
+import com.chinmayshivratriwar.expense_tracker.constants.Constant;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,9 +31,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
+        String authHeader = request.getHeader(Constant.AUTHORIZATION);
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        if (authHeader != null && authHeader.startsWith(Constant.BEARER)) {
             String token = authHeader.substring(7);
 
             try {

@@ -102,8 +102,8 @@ public class AuthServiceImpl implements AuthService {
         claims.put("isVerified", user.getIsVerified());
 
         // generate tokens
-        String accessToken = jwtUtil.generateAccessToken(claims, user.getEmail());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), claims);
+        String accessToken = jwtUtil.generateAccessToken(claims, user.getUsername());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getUsername(), claims);
         Long refreshTokenExpiry = jwtUtil.getRefreshTokenExpiration(); // in ms
 
         // persist session

@@ -1,40 +1,52 @@
 package com.chinmayshivratriwar.expense_tracker.controller;
 
-//import com.chinmayshivratriwar.expense_tracker.dto.TransactionRequest;
-//import com.chinmayshivratriwar.expense_tracker.dto.TransactionResponse;
-//import com.chinmayshivratriwar.expense_tracker.entities.Session;
-//import com.chinmayshivratriwar.expense_tracker.service.TransactionService;
-//import jakarta.validation.Valid;
-//import org.springframework.http.HttpStatus;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.web.bind.annotation.*;
-//
-//import java.util.List;
-//
-//@RestController
-//@RequestMapping("/api/transactions")
-//public class TransactionController {
-//
-//    private final TransactionService transactionService;
-//
-//    public TransactionController(TransactionService transactionService) {
-//        this.transactionService = transactionService;
-//    }
-//
-//    // Create Transaction
-//    @PostMapping
-//    public ResponseEntity<TransactionResponse> createTransaction(
-//            @Valid @RequestBody TransactionRequest request) {
-//        TransactionResponse response = transactionService.createTransaction(request);
-//        return new ResponseEntity<>(response, HttpStatus.CREATED);
-//    }
-//
-//    // Get All Transactions
-//    @GetMapping
-//    public ResponseEntity<List<TransactionResponse>> getAllTransactions() {
-//        List<TransactionResponse> responses = transactionService.getAllTransactions();
-//        return ResponseEntity.ok(responses);
-//    }
+import com.chinmayshivratriwar.expense_tracker.constants.Constant;
+import com.chinmayshivratriwar.expense_tracker.dto.TransactionRequest;
+import com.chinmayshivratriwar.expense_tracker.dto.TransactionResponse;
+import com.chinmayshivratriwar.expense_tracker.entities.Session;
+import com.chinmayshivratriwar.expense_tracker.entities.User;
+import com.chinmayshivratriwar.expense_tracker.security.JwtUtil;
+import com.chinmayshivratriwar.expense_tracker.service.SessionService;
+import com.chinmayshivratriwar.expense_tracker.service.TransactionService;
+import com.chinmayshivratriwar.expense_tracker.service.UserService;
+import com.chinmayshivratriwar.expense_tracker.util.ControllerUtil;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api/transactions")
+@RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
+public class TransactionController {
+
+    private final TransactionService transactionService;
+    private final UserService userService;
+    private final JwtUtil jwtUtil;
+
+    // Create Transaction
+    @PostMapping
+    public ResponseEntity<TransactionResponse> createTransaction(
+            @Valid @RequestBody TransactionRequest request, @RequestHeader(Constant.AUTHORIZATION) String authHeader) {
+        User user = getUserFromToken(authHeader);
+        if(null == user) throw new RuntimeException("Token is null or empty");
+        TransactionResponse response = transactionService.createTransaction(user.getId(), request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    // Get All Transactions
+    @GetMapping
+    public ResponseEntity<List<TransactionResponse>> getAllTransactions(@RequestHeader(Constant.AUTHORIZATION) String authHeader) {
+        User user = getUserFromToken(authHeader);
+        if(null == user) throw new RuntimeException("Token is null or empty");
+        List<TransactionResponse> responses = transactionService.getAllTransactions(user.getId());
+        return ResponseEntity.ok(responses);
+    }
 //
 //    // Get Transaction by ID
 //    @GetMapping("/{id}")
@@ -60,4 +72,14 @@ package com.chinmayshivratriwar.expense_tracker.controller;
 //        transactionService.deleteTransaction(id);
 //        return ResponseEntity.noContent().build();
 //    }
-//}
+
+    private User getUserFromToken(String authHeader){
+        String accessToken = ControllerUtil.getAccessToken(authHeader);
+        if (accessToken == null || accessToken.isEmpty()) {
+            return null;
+        }
+        String username = jwtUtil.extractUsername(accessToken);
+        return userService.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+}

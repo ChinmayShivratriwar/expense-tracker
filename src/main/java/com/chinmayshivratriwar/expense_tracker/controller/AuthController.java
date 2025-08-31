@@ -1,10 +1,12 @@
 package com.chinmayshivratriwar.expense_tracker.controller;
 
+import com.chinmayshivratriwar.expense_tracker.constants.Constant;
 import com.chinmayshivratriwar.expense_tracker.dto.AuthResponse;
 import com.chinmayshivratriwar.expense_tracker.dto.LoginRequest;
 import com.chinmayshivratriwar.expense_tracker.dto.RegisterRequest;
 import com.chinmayshivratriwar.expense_tracker.service.AuthService;
 import com.chinmayshivratriwar.expense_tracker.service.UserService;
+import com.chinmayshivratriwar.expense_tracker.util.ControllerUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,11 +40,11 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout( @RequestHeader("Authorization") String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+    public ResponseEntity<Void> logout( @RequestHeader(Constant.AUTHORIZATION) String authHeader) {
+        String refreshToken = ControllerUtil.getAccessToken(authHeader);
+        if (refreshToken == null || refreshToken.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-        String refreshToken = authHeader.substring(7);
         authService.logout(refreshToken);
         return ResponseEntity.ok().build();
     }
