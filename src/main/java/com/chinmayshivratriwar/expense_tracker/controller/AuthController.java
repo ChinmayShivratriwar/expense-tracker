@@ -6,6 +6,7 @@ import com.chinmayshivratriwar.expense_tracker.dto.RegisterRequest;
 import com.chinmayshivratriwar.expense_tracker.service.AuthService;
 import com.chinmayshivratriwar.expense_tracker.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,7 +38,11 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestParam String refreshToken) {
+    public ResponseEntity<Void> logout( @RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        String refreshToken = authHeader.substring(7);
         authService.logout(refreshToken);
         return ResponseEntity.ok().build();
     }
