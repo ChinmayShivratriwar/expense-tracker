@@ -1,4 +1,5 @@
 package com.chinmayshivratriwar.expense_tracker.dto;
+import com.chinmayshivratriwar.expense_tracker.entities.Transaction;
 import lombok.Builder;
 import lombok.Data;
 
@@ -17,5 +18,16 @@ public class TransactionResponse {
     private LocalDateTime transactionDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    public static TransactionResponse fromEntity(Transaction transaction) {
+        return TransactionResponse.builder()
+                .id(transaction.getId())
+                .type(transaction.getType())
+                .category(transaction.getCategory())
+                .description(transaction.getDescription())
+                .amount(transaction.getAmount())
+                .createdAt(transaction.getCreatedAt())
+                .build();
+    }
 }
 

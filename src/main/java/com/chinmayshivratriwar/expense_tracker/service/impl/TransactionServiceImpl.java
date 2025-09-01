@@ -1,11 +1,19 @@
 package com.chinmayshivratriwar.expense_tracker.service.impl;
 
+import com.chinmayshivratriwar.expense_tracker.constants.Constant;
+import com.chinmayshivratriwar.expense_tracker.dto.PagedResponse;
 import com.chinmayshivratriwar.expense_tracker.dto.TransactionRequest;
 import com.chinmayshivratriwar.expense_tracker.dto.TransactionResponse;
 import com.chinmayshivratriwar.expense_tracker.entities.Transaction;
 import com.chinmayshivratriwar.expense_tracker.repository.TransactionRepository;
 import com.chinmayshivratriwar.expense_tracker.repository.UserRepository;
+//import com.chinmayshivratriwar.expense_tracker.service.BudgetService;
 import com.chinmayshivratriwar.expense_tracker.service.TransactionService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,16 +24,13 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
+    //private final BudgetService budgetService;
 
-    public TransactionServiceImpl(TransactionRepository transactionRepository,
-                                  UserRepository userRepository) {
-        this.transactionRepository = transactionRepository;
-        this.userRepository = userRepository;
-    }
 
     @Override
     public TransactionResponse createTransaction(UUID userId, TransactionRequest request) {
@@ -41,6 +46,14 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setCategory(request.getCategory()); // string category
 
         Transaction saved = transactionRepository.save(transaction);
+
+//        if (Constant.EXPENSE.equalsIgnoreCase(request.getType()) || Constant.TRANSFER.equalsIgnoreCase(request.getType())) {
+//            budgetService.addExpense(userId,
+//                    request.getCategory(),
+//                    request.getAmount(),
+//                    LocalDate.now().getMonthValue(),
+//                    LocalDate.now().getYear());
+//        }
         return mapToResponseDto(saved);
     }
 
@@ -57,7 +70,7 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setType(request.getType());
         transaction.setDescription(request.getDescription());
         transaction.setTransactionDate(request.getTransactionDate());
-        transaction.setCategory(request.getCategory()); // update category string
+        transaction.setCategory(request.getCategory());
 
         return mapToResponseDto(transactionRepository.save(transaction));
     }
@@ -92,6 +105,26 @@ public class TransactionServiceImpl implements TransactionService {
                 .map(this::mapToResponseDto)
                 .collect(Collectors.toList());
     }
+
+
+    public PagedResponse<TransactionResponse> getAllTransactionsForPage(UUID userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Transaction> transactionPage = transactionRepository.findByUserId(userId, pageable);
+
+        List<TransactionResponse> content = transactionPage.stream()
+                .map(TransactionResponse::fromEntity)
+                .toList();
+
+        return new PagedResponse<>(
+                content,
+                page,
+                size,
+                transactionPage.getTotalElements(),
+                transactionPage.getTotalPages()
+        );
+    }
+
+
 
     @Override
     public List<TransactionResponse> getTransactionsByCategory(UUID userId, UUID categoryId) {

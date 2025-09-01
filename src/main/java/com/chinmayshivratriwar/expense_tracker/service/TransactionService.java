@@ -1,6 +1,7 @@
 package com.chinmayshivratriwar.expense_tracker.service;
 
 
+import com.chinmayshivratriwar.expense_tracker.dto.PagedResponse;
 import com.chinmayshivratriwar.expense_tracker.dto.TransactionRequest;
 import com.chinmayshivratriwar.expense_tracker.dto.TransactionResponse;
 
@@ -18,6 +19,8 @@ public interface TransactionService {
     TransactionResponse getTransactionById(UUID userId, UUID transactionId);
 
     List<TransactionResponse> getAllTransactions(UUID userId);
+
+    PagedResponse<TransactionResponse> getAllTransactionsForPage(UUID userId, int page, int size);
 
     List<TransactionResponse> getTransactionsByCategory(UUID userId, UUID categoryId);
 

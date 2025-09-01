@@ -1,6 +1,7 @@
 package com.chinmayshivratriwar.expense_tracker.controller;
 
 import com.chinmayshivratriwar.expense_tracker.constants.Constant;
+import com.chinmayshivratriwar.expense_tracker.dto.PagedResponse;
 import com.chinmayshivratriwar.expense_tracker.dto.TransactionRequest;
 import com.chinmayshivratriwar.expense_tracker.dto.TransactionResponse;
 import com.chinmayshivratriwar.expense_tracker.entities.Session;
@@ -41,13 +42,29 @@ public class TransactionController {
 
     // Get All Transactions
     //TODO: Implement Server Side Pagination and Sorting based on various params for heavy dataset
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<TransactionResponse>> getAllTransactions(@RequestHeader(Constant.AUTHORIZATION) String authHeader) {
         User user = getUserFromToken(authHeader);
         if(null == user) throw new RuntimeException("Token is null or empty");
         List<TransactionResponse> responses = transactionService.getAllTransactions(user.getId());
         return ResponseEntity.ok(responses);
     }
+
+    // Get All Transactions for a given page
+    @GetMapping
+    public ResponseEntity<PagedResponse<TransactionResponse>> getAllTransactions(
+            @RequestHeader(Constant.AUTHORIZATION) String authHeader,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "8") int size
+    ) {
+        User user = getUserFromToken(authHeader);
+        if (user == null) throw new RuntimeException("Token is null or empty");
+
+        PagedResponse<TransactionResponse> responses = transactionService.getAllTransactionsForPage(user.getId(), page, size);
+        return ResponseEntity.ok(responses);
+    }
+
+
 //
 //    // Get Transaction by ID
 //    @GetMapping("/{id}")
