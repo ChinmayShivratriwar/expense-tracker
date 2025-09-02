@@ -5,6 +5,7 @@ import com.chinmayshivratriwar.expense_tracker.dto.PagedResponse;
 import com.chinmayshivratriwar.expense_tracker.dto.TransactionRequest;
 import com.chinmayshivratriwar.expense_tracker.dto.TransactionResponse;
 import com.chinmayshivratriwar.expense_tracker.entities.Transaction;
+import com.chinmayshivratriwar.expense_tracker.repository.BudgetRepository;
 import com.chinmayshivratriwar.expense_tracker.repository.TransactionRepository;
 import com.chinmayshivratriwar.expense_tracker.repository.UserRepository;
 //import com.chinmayshivratriwar.expense_tracker.service.BudgetService;
@@ -29,7 +30,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
-    //private final BudgetService budgetService;
+    private final BudgetRepository budgetRepository;
 
 
     @Override
@@ -43,17 +44,16 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setType(request.getType());
         transaction.setDescription(request.getDescription());
         transaction.setTransactionDate(request.getTransactionDate());
-        transaction.setCategory(request.getCategory()); // string category
+        transaction.setCategory(request.getCategory());
 
         Transaction saved = transactionRepository.save(transaction);
-
-//        if (Constant.EXPENSE.equalsIgnoreCase(request.getType()) || Constant.TRANSFER.equalsIgnoreCase(request.getType())) {
-//            budgetService.addExpense(userId,
-//                    request.getCategory(),
-//                    request.getAmount(),
-//                    LocalDate.now().getMonthValue(),
-//                    LocalDate.now().getYear());
-//        }
+        if(Constant.EXPENSE.equalsIgnoreCase(saved.getType()) || Constant.TRANSFER.equalsIgnoreCase(saved.getType())){
+            budgetRepository.findByUserIdAndCategoryAndMonthAndYear(saved.getUser().getId(), saved.getCategory(), Short.valueOf(String.valueOf(saved.getTransactionDate().getMonth().getValue())), Short.valueOf(String.valueOf(saved.getTransactionDate().getYear())))
+                    .ifPresent(budget -> {
+                        budget.setSpentAmount(budget.getSpentAmount().add(saved.getAmount()));
+                        budgetRepository.save(budget);
+                    });
+        }
         return mapToResponseDto(saved);
     }
 

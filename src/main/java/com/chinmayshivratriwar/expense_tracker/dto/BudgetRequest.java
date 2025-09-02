@@ -23,10 +23,10 @@ public class BudgetRequest {
     @NotNull(message = "month is required")
     @Min(value = 1, message = "month must be between 1 and 12")
     @Max(value = 12, message = "month must be between 1 and 12")
-    private Integer month;
+    private Short month;
 
     @NotNull(message = "year is required")
     @Min(value = 2000, message = "year must be >= 2000")
     @Max(value = 2100, message = "year must be <= 2100")
-    private Integer year;
+    private Short year;
 }
