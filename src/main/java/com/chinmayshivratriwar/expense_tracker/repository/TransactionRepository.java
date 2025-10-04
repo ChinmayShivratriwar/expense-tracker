@@ -1,10 +1,12 @@
 package com.chinmayshivratriwar.expense_tracker.repository;
 
+import com.chinmayshivratriwar.expense_tracker.dto.CategorySpend;
 import com.chinmayshivratriwar.expense_tracker.entities.Transaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -28,6 +30,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     BigDecimal getTotalSpentByCategoryAndMonth(UUID userId, String category, Short month, Short year);
 
     long count();
+
+    @Query("SELECT new com.chinmayshivratriwar.expense_tracker.dto.CategorySpend(t.category, SUM(t.amount)) " +
+            "FROM Transaction t " +
+            "WHERE t.user.id = :userId AND t.type IN ('EXPENSE', 'TRANSFER') " +
+            "GROUP BY t.category")
+    List<CategorySpend> sumSpendsPerCategory(@Param("userId") UUID userId);
 
 }
 

@@ -1,5 +1,7 @@
 package com.chinmayshivratriwar.expense_tracker.constants;
 
+import java.util.Set;
+
 public class Constant {
     private Constant(){
 
@@ -11,4 +13,11 @@ public class Constant {
     public static final String EXPENSE = "EXPENSE";
     public static final String TRANSFER = "TRANSFER";
     public static final String ADMIN = "ADMIN";
+    public static final Set<String> CATEGORIES = Set.of(
+            "Food", "Leisure", "Vehicle",
+            "Subscription", "Shopping",
+            "Bills", "Entertainment",
+            "Travel", "Health",
+            "Education", "Others"
+    );
 }

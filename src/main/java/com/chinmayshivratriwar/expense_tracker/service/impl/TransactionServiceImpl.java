@@ -1,6 +1,7 @@
 package com.chinmayshivratriwar.expense_tracker.service.impl;
 
 import com.chinmayshivratriwar.expense_tracker.constants.Constant;
+import com.chinmayshivratriwar.expense_tracker.dto.CategorySpend;
 import com.chinmayshivratriwar.expense_tracker.dto.PagedResponse;
 import com.chinmayshivratriwar.expense_tracker.dto.TransactionRequest;
 import com.chinmayshivratriwar.expense_tracker.dto.TransactionResponse;
@@ -17,9 +18,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -150,6 +151,18 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public long getTotalTransactions() {
         return transactionRepository.count();
+    }
+
+    @Override
+    //Chinmay to himself - "I Should have done this in analytics microservice,
+    //such heavy queries should not be in backend, in backend it should have been only a read operation from
+    //transformed tables -  this will cause unnecessary computational overhead in backend"
+    public Map<String, BigDecimal> getUserSpendsPerCategory(UUID userId) {
+        List<CategorySpend> sums = transactionRepository.sumSpendsPerCategory(userId);
+        Map<String, BigDecimal> result = new LinkedHashMap<>();
+        Constant.CATEGORIES.forEach(cat -> result.put(cat, BigDecimal.ZERO));
+        sums.forEach(cs -> result.put(cs.getCategory(), cs.getTotalAmount() != null ? cs.getTotalAmount() : BigDecimal.ZERO));
+        return result;
     }
 
     private TransactionResponse mapToResponseDto(Transaction transaction) {

@@ -5,7 +5,9 @@ import com.chinmayshivratriwar.expense_tracker.dto.PagedResponse;
 import com.chinmayshivratriwar.expense_tracker.dto.TransactionRequest;
 import com.chinmayshivratriwar.expense_tracker.dto.TransactionResponse;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public interface TransactionService {
@@ -29,5 +31,7 @@ public interface TransactionService {
     List<TransactionResponse> getTransactionsByDateRange(UUID userId, String startDate, String endDate);
 
     long getTotalTransactions();
+
+    Map<String, BigDecimal> getUserSpendsPerCategory(UUID userId);
 }
 

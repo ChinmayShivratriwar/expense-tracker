@@ -1,13 +1,9 @@
 package com.chinmayshivratriwar.expense_tracker.controller;
 
 import com.chinmayshivratriwar.expense_tracker.constants.Constant;
-import com.chinmayshivratriwar.expense_tracker.dto.PagedResponse;
-import com.chinmayshivratriwar.expense_tracker.dto.TransactionRequest;
-import com.chinmayshivratriwar.expense_tracker.dto.TransactionResponse;
-import com.chinmayshivratriwar.expense_tracker.entities.Session;
+import com.chinmayshivratriwar.expense_tracker.dto.*;
 import com.chinmayshivratriwar.expense_tracker.entities.User;
 import com.chinmayshivratriwar.expense_tracker.security.JwtUtil;
-import com.chinmayshivratriwar.expense_tracker.service.SessionService;
 import com.chinmayshivratriwar.expense_tracker.service.TransactionService;
 import com.chinmayshivratriwar.expense_tracker.service.UserService;
 import com.chinmayshivratriwar.expense_tracker.util.ControllerUtil;
@@ -17,8 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -41,7 +39,6 @@ public class TransactionController {
     }
 
     // Get All Transactions
-    //TODO: Implement Server Side Pagination and Sorting based on various params for heavy dataset
     @GetMapping("/all")
     public ResponseEntity<List<TransactionResponse>> getAllTransactions(@RequestHeader(Constant.AUTHORIZATION) String authHeader) {
         User user = getUserFromToken(authHeader);
@@ -65,32 +62,6 @@ public class TransactionController {
     }
 
 
-//
-//    // Get Transaction by ID
-//    @GetMapping("/{id}")
-//    public ResponseEntity<TransactionResponse> getTransactionById(@PathVariable Long id) {
-//        Session session = sessionRepository.findByRefreshToken(refreshToken)
-//                .orElseThrow(() -> new RuntimeException("Session not found or already logged out"));
-//        TransactionResponse response = transactionService.getTransactionById(id);
-//        return ResponseEntity.ok(response);
-//    }
-//
-//    // Update Transaction
-//    @PutMapping("/{id}")
-//    public ResponseEntity<TransactionResponse> updateTransaction(
-//            @PathVariable Long id,
-//            @Valid @RequestBody TransactionRequest request) {
-//        TransactionResponse response = transactionService.updateTransaction(id, request);
-//        return ResponseEntity.ok(response);
-//    }
-//
-//    // Delete Transaction
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
-//        transactionService.deleteTransaction(id);
-//        return ResponseEntity.noContent().build();
-//    }
-
     private User getUserFromToken(String authHeader){
         String accessToken = ControllerUtil.getAccessToken(authHeader);
         if (accessToken == null || accessToken.isEmpty()) {
@@ -99,5 +70,29 @@ public class TransactionController {
         String username = jwtUtil.extractUsername(accessToken);
         return userService.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    @GetMapping("spends-per-category")
+    public ResponseEntity<UserCategorySpendResponse> getUserCategorySpend(@RequestHeader(Constant.AUTHORIZATION) String authHeader){
+        User user = getUserFromToken(authHeader);
+        if(null == user) throw new RuntimeException("Token is null or empty");
+        Map<String, BigDecimal> categorySpendMap = transactionService.getUserSpendsPerCategory(user.getId());
+        List<CategorySpend> categorySpends = new ArrayList<>();
+        categorySpendMap.forEach(
+                (category, totalAmount) -> {
+                    categorySpends.add(
+                            CategorySpend.builder()
+                                    .totalAmount(totalAmount)
+                                    .category(category)
+                                    .build()
+                    );
+                }
+        );
+        return new ResponseEntity<>(
+                UserCategorySpendResponse.builder()
+                        .categorySpend(categorySpends)
+                        .userId(String.valueOf(user.getId()))
+                        .build()
+                , HttpStatus.OK);
     }
 }
