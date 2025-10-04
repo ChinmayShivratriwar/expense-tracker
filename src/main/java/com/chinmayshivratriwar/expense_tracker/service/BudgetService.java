@@ -24,4 +24,6 @@ public interface BudgetService {
     void removeBudget(UUID userId, String category, Short month, Short year);
 
     boolean isOverBudget(UUID userId, String category, Short month, Short year);
+
+    long getTotalBudgets();
 }

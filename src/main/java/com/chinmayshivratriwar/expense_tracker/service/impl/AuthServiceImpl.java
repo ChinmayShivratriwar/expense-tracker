@@ -100,6 +100,7 @@ public class AuthServiceImpl implements AuthService {
         claims.put("email", user.getEmail());
         claims.put("username", user.getUsername());
         claims.put("isVerified", user.getIsVerified());
+        claims.put("role", user.getRole().name());
 
         // generate tokens
         String accessToken = jwtUtil.generateAccessToken(claims, user.getUsername());

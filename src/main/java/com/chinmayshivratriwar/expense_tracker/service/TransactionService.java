@@ -27,5 +27,7 @@ public interface TransactionService {
     List<TransactionResponse> getTransactionsByCategory(UUID userId, String category);
 
     List<TransactionResponse> getTransactionsByDateRange(UUID userId, String startDate, String endDate);
+
+    long getTotalTransactions();
 }
 

@@ -108,4 +108,9 @@ public class BudgetServiceImpl implements BudgetService {
                 .map(b -> b.getSpentAmount().compareTo(b.getLimitAmount()) > 0)
                 .orElse(false);
     }
+
+    @Override
+    public long getTotalBudgets() {
+        return budgetRepository.count();
+    }
 }

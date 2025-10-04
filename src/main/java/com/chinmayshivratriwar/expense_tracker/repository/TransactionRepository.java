@@ -27,6 +27,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
             "AND MONTH(t.transactionDate) = :month")
     BigDecimal getTotalSpentByCategoryAndMonth(UUID userId, String category, Short month, Short year);
 
+    long count();
 
 }
 

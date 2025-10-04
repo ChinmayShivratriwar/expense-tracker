@@ -2,6 +2,7 @@ package com.chinmayshivratriwar.expense_tracker.service.impl;
 
 import com.chinmayshivratriwar.expense_tracker.dto.RegisterRequest;
 import com.chinmayshivratriwar.expense_tracker.entities.User;
+import com.chinmayshivratriwar.expense_tracker.enums.Role;
 import com.chinmayshivratriwar.expense_tracker.repository.UserRepository;
 import com.chinmayshivratriwar.expense_tracker.service.UserService;
 
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -34,6 +36,7 @@ public class UserServiceImpl implements UserService {
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setIsActive(true);
         user.setIsVerified(false);
+        user.setRole(Role.USER);
 
         return userRepository.save(user);
     }
@@ -57,4 +60,16 @@ public class UserServiceImpl implements UserService {
     public boolean existsByUsername(String username) {
         return userRepository.findByUsername(username).isPresent();
     }
+
+    @Override
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    public long getTotalUsers() {
+        return userRepository.count();
+    }
+
+
 }

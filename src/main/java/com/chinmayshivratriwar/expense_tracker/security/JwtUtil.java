@@ -51,6 +51,7 @@ public class JwtUtil {
         claims.put("email", user.getEmail());
         claims.put("username", user.getUsername());
         claims.put("isVerified", user.getIsVerified());
+        claims.put("role", user.getRole().name());
 
         return generateAccessToken(claims, user.getUsername());
     }
@@ -61,6 +62,7 @@ public class JwtUtil {
         claims.put("email", user.getEmail());
         claims.put("username", user.getUsername());
         claims.put("isVerified", user.getIsVerified());
+        claims.put("role", user.getRole().name());
 
         return generateRefreshToken(user.getUsername(), claims);
     }

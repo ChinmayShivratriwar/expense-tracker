@@ -1,5 +1,6 @@
 package com.chinmayshivratriwar.expense_tracker.entities;
 
+import com.chinmayshivratriwar.expense_tracker.enums.Role;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -46,4 +47,8 @@ public class User {
 
     @Column(name = "updated_at", nullable = false, insertable = false)
     private LocalDateTime updatedAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role = Role.USER;
 }

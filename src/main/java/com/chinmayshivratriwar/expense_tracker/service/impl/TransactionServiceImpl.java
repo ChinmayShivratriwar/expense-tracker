@@ -8,7 +8,6 @@ import com.chinmayshivratriwar.expense_tracker.entities.Transaction;
 import com.chinmayshivratriwar.expense_tracker.repository.BudgetRepository;
 import com.chinmayshivratriwar.expense_tracker.repository.TransactionRepository;
 import com.chinmayshivratriwar.expense_tracker.repository.UserRepository;
-//import com.chinmayshivratriwar.expense_tracker.service.BudgetService;
 import com.chinmayshivratriwar.expense_tracker.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -146,6 +145,11 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionRepository.findByUserIdAndTransactionDateBetween(userId, start, end).stream()
                 .map(this::mapToResponseDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public long getTotalTransactions() {
+        return transactionRepository.count();
     }
 
     private TransactionResponse mapToResponseDto(Transaction transaction) {

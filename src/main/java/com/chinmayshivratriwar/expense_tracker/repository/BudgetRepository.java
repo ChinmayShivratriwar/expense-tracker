@@ -15,5 +15,7 @@ public interface BudgetRepository extends JpaRepository<Budget, Long> {
     List<Budget> findByUserIdAndMonthAndYear(UUID userId, Short month, Short year);
     List<Budget> findAllByUserId(UUID userId);
     void deleteByUserIdAndCategoryAndMonthAndYear(UUID userId, String category, Short month, Short year);
+
+    long count();
 }
 
